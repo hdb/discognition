@@ -1,5 +1,7 @@
 # Discognition
 
+**Discognition** is a command line tool to reorganize your media library. It uses data available from the Discogs API to add/modify ID3 tags, change file names and alter library directory structure. 
+
 ## Requirements
 
 - python3
