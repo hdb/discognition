@@ -213,7 +213,8 @@ def iterateDiscogsTracks(tracklist, fields):
                 actually_one_track = False
 
             if actually_one_track:
-                [ret[f][-1] = ret[f][-1] + '/' + getattr(track,f) for f in fields]        
+                for f in fields:
+                    ret[f][-1] = ret[f][-1] + '/' + getattr(track,f)
             else:
                 [ret[f].append(getattr(track,f)) for f in fields]
                     
