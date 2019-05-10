@@ -247,7 +247,7 @@ def renameDirs(album_dir, data, mus_lib, pattern=None):
 
     pattern = '%s/%s (%s)/' % (data['TPE1'], data['TALB'], data['TDRC'])
 
-    new_dir_name = config['directory'] + pattern
+    new_dir_name = mus_lib + pattern
 
     if new_dir_name == album_dir: 
         print('\ndirectory name is already ' + album_dir)
