@@ -32,6 +32,8 @@ parser.add_argument('-s', '--search', nargs='?', help='query discogs database in
 parser.add_argument('-g', '--generateconfig', nargs='*', help=' create yaml configuration file. \
     first argument = Discogs API token, second argument = music library directory', metavar="")
 
+parser.add_argument('--require-durations', action='store_true', help='require album to have durations for individual tracks listed.')
+
 parser.add_argument('-v', '--version', action='version', version="%(prog)s ("+__version__+")", help='show program\'s version number and exit')
 
 args = parser.parse_args()

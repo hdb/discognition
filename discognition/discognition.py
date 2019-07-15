@@ -46,9 +46,7 @@ def configure():
     }
 
 
-###########
-
-def getData(discogs_search_str, interactive, client, num_files, search_limit=10):
+def getData(discogs_search_str, client, interactive=False, num_files=None, search_limit=10, req_durs=False):
 
     regex = re.search('(^|release/)([0-9]+)$', discogs_search_str)
 
@@ -68,8 +66,13 @@ def getData(discogs_search_str, interactive, client, num_files, search_limit=10)
         elif hits is 1 or (num_files is None and not interactive):
             print('found '+ str(hits) +' album(s)...')
             album = results[0]
-            print('\nusing album: ' + album.title)
-            print(album.url)
+
+            if not(not req_durs or hasDurations(album)):
+                print('\nno results with track durations. exiting...')
+                exit()
+            else:
+                print('\nusing album: ' + album.title)
+                print(album.url)
 
         elif not interactive:
             print('found '+ str(hits) +' album(s)...')
@@ -79,9 +82,17 @@ def getData(discogs_search_str, interactive, client, num_files, search_limit=10)
                 album = results[index]
 
                 if len(album.tracklist) is num_files:
-                    print('\nusing album: ' + album.title)
-                    print(album.url)
-                    break
+
+                    if not req_durs or hasDurations(album):
+                        print('\nusing album: ' + album.title)
+                        print(album.url)
+                        break
+
+                    else:
+                        print('\nalbum (' + album.url + ') does not have track durations. trying another...')
+                        index += 1
+                        time.sleep(.5)
+                        pass
 
                 else:
                     print('\nalbum (' + album.url + ') has wrong number of tracks. trying another...')
@@ -99,9 +110,14 @@ def getData(discogs_search_str, interactive, client, num_files, search_limit=10)
             result_num = 0
             while not found:
                 album = results[result_num]
+                if hasDurations(album):
+                    has_durs = 'track durations are listed'
+                else:
+                    has_durs = 'no track durations are listed'
                 found = getInput([
-                    album.title + ' (' + album.year + ')',
+                    album.title + ' (' + str(album.year) + ')',
                     str(len(album.tracklist)) + ' tracks on ' + album.formats[0]['name'],
+                    has_durs,
                     album.url,
                     ])[0]
                 if not found: result_num = result_num + 1
@@ -119,8 +135,13 @@ def getData(discogs_search_str, interactive, client, num_files, search_limit=10)
 
     track_titles = []
     tracklist = album.tracklist
+
+    if req_durs: 
+        track_fields_to_query = ['title','duration']
+    else:
+        track_fields_to_query = ['title']
     
-    track_data = iterateDiscogsTracks(album.tracklist, ['title'])
+    track_data = iterateDiscogsTracks(album.tracklist, track_fields_to_query)
 
     master = False
    
@@ -158,7 +179,6 @@ def getData(discogs_search_str, interactive, client, num_files, search_limit=10)
             label_name_list.append(re.sub(' \([0-9]+\)$','', l.name))
         label = ", ".join(label_name_list)
 
-
     '''
     additional available Discogs API data:
 
@@ -191,6 +211,8 @@ def getData(discogs_search_str, interactive, client, num_files, search_limit=10)
     }
 
 
+def hasDurations(album):
+    return len(album.tracklist[0].duration) is not 0
 
 
 def iterateDiscogsTracks(tracklist, fields):
@@ -401,16 +423,15 @@ def getInput(info):
        sys.stdout.write("Please respond with '(y)es' or '(n)o'")
 
 
-
-
-
-
 def main():
 
     c = configure()
 
     client = c['client']
     music_lib = c['config']['directory']
+
+    require_durations = args.require_durations
+    interact = args.interactive
 
     if args.directory is not None:
 
@@ -440,7 +461,7 @@ def main():
 
             print('\nsearching Discogs for "' + discogs_query + '"...')
 
-            discogs_data = getData(discogs_query, args.interactive, client, len(files))
+            discogs_data = getData(discogs_query, client, interactive=interact, num_files=len(files), req_durs=require_durations)
 
 
             if args.tag is None and not args.renametracks and not args.renamedirectories:
@@ -487,7 +508,7 @@ def main():
 
         print('searching Discogs for "' + discogs_query + '"...')
 
-        discogs_data = getData(discogs_query, args.interactive, client, None)
+        discogs_data = getData(discogs_query, client, interactive=interact, req_durs=require_durations)
 
         for datum in discogs_data:
 
