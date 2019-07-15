@@ -32,7 +32,7 @@ directory: /PATH/TO/LIBRARY
 
 ```
 discognition [-h] [-t [TAG [TAG ...]]] [-p] [-rn] [-rd] [-i] [-R] [-s ]
-                    [-g [[...]]] [-v]
+                    [-g [[...]]] [--require-durations] [-v]
                     [directory]
 
 update mp3 metadata and file/directory names using the discogs api
@@ -61,6 +61,8 @@ optional arguments:
                         create yaml configuration file. first argument =
                         Discogs API token, second argument = music library
                         directory
+  --require-durations   require album to have durations for individual tracks
+                        listed.
   -v, --version         show program's version number and exit
 
 ```
