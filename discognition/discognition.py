@@ -269,22 +269,27 @@ def renameDirs(album_dir, data, mus_lib, pattern=None):
 
     pattern = '%s/%s (%s)/' % (data['TPE1'], data['TALB'], data['TDRC'])
 
-    new_dir_name = mus_lib + pattern
+    old_album_dir = os.path.join(os.getcwd(), album_dir)
+    new_album_dir = os.path.join(mus_lib, pattern)
 
-    if new_dir_name == album_dir: 
+    if new_album_dir == old_album_dir: 
         print('\ndirectory name is already ' + album_dir)
         print('directory will not be renamed')
         return album_dir
 
-    elif os.path.isdir(new_dir_name):
-        print('\nalready a directory with name ' + new_dir_name)
+    elif os.path.isdir(new_album_dir):
+        print('\nalready a directory with name ' + new_album_dir)
         print('unable to change name')
         return album_dir
 
     else:
-        print('\nchanging directory name from \n' + album_dir + ' \nto: \n' + new_dir_name)
-        os.rename(album_dir, new_dir_name)
-        return new_dir_name
+        print('\nchanging directory name from \n' + album_dir + ' \nto: \n' + new_album_dir)
+        new_artist_dir = os.path.join(mus_lib, data['TPE1'] + '/') # currently pattern doesn't support alternate top level (e.g., artist) directory names or music lib subdirs
+        old_artist_dir = os.path.dirname(os.path.dirname(old_album_dir)) # trailing slash causes os.path.dirname to return same dir on first pass
+        if not os.path.isdir(new_artist_dir): os.mkdir(new_artist_dir)
+        os.rename(old_album_dir, new_album_dir)
+        if not os.listdir(old_artist_dir): os.rmdir(old_artist_dir)
+        return new_album_dir
 
 
 def getTracks(path):
